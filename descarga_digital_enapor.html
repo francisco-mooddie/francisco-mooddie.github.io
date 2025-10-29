@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descarga Digital - Dashboard</title>
+    
+    <!-- Carrega a fonte Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Carrega o Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Carrega o Chart.js para o gráfico (atualmente não utilizado, mas mantido) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Configuração do Tailwind (Paleta ENAPOR e Fonte) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'enapor-blue': '#003A70',
+                        'enapor-orange': '#FF7A00',
+                        'enapor-green': '#00B294',
+                        'enapor-gray': '#F8F9FA',
+                        'enapor-red': '#D9534F' // Cor de erro
+                    },
+                    borderRadius: {
+                        '2xl': '1rem', // 16px
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Estilos adicionais para um visual mais limpo */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Cor da barra de scroll */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="bg-enapor-gray text-gray-800">
+
+    <div class="flex h-screen">
+        <!-- Barra Lateral (Sidebar) -->
+        <!-- ID 'sidebar' adicionado para controlo via JS -->
+        <!-- ALTERAÇÃO: Barra lateral com fundo escuro (enapor-blue) e texto claro -->
+        <aside id="sidebar" class="w-64 bg-enapor-blue text-white p-6 shadow-lg hidden md:flex flex-col flex-shrink-0 absolute md:relative z-20 h-full">
+            <!-- Logo -->
+            <div class="mb-10">
+                <h1 class="text-2xl font-bold text-white">Descarga Digital</h1>
+            </div>
+            
+            <!-- Navegação Principal -->
+            <nav class="flex-1 space-y-2">
+                <!-- ALTERAÇÃO: Estilo de link ativo/inativo para fundo escuro -->
+                <a href="#" id="nav-navios" class="flex items-center gap-3 px-4 py-3 bg-white/10 text-white font-semibold rounded-lg">
+                    <!-- Ícone 🚢 (Lucide: ShipWheel) -->
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4"/><path d="M2 12h4"/><path d="m19.07 4.93-.88.88"/><path d="m5.81 18.19.88-.88"/><path d="M12 2v4"/><path d="M12 22v-4"/><path d="m4.93 4.93.88.88"/><path d="m18.19 18.19-.88-.88"/><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/></svg>
+                    <span>Navios</span>
+                </a>
+                <a href="#" id="nav-descarga" class="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-white font-medium rounded-lg">
+                    <!-- Ícone  (Lucide: Box) -->
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" x2="12" y1="22" y2="12"></line></svg>
+                    <span>Descarga</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-white font-medium rounded-lg">
+                    <!-- Ícone 📊 (Lucide: BarChart) -->
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-white font-medium rounded-lg">
+                    <!-- Ícone ⚙️ (Lucide: Settings) -->
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 .25 1l-.08.15a2 2 0 0 1 0 2l.08.15a2 2 0 0 1-.25 1l-.15.1a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-.25-1l.08-.15a2 2 0 0 1 0-2l-.08-.15a2 2 0 0 1 .25-1l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span>Definições</span>
+                </a>
+            </nav>
+            
+            <!-- Logout -->
+            <div class="mt-auto">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-white font-medium rounded-lg">
+                    <!-- Ícone 🔒 (Lucide: LogOut) -->
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Terminar sessão</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            
+            <!-- Header (Cabeçalho) -->
+            <header class="bg-white h-20 flex-shrink-0 shadow-sm flex items-center justify-between px-6 md:px-8">
+                <!-- Barra de Pesquisa -->
+                <div class="flex-1 max-w-xl relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <!-- Ícone de Pesquisa (Lucide: Search) -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
+                    </span>
+                    <!-- Pesquisa de Navios -->
+                    <input type="text" id="ship-search-input" placeholder="Procurar por navio ou IMO..." class="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-enapor-blue">
+                    <!-- Pesquisa de Contentores (oculta por defeito) -->
+                    <input type="text" id="main-search-input" placeholder="Procurar por contentor..." class="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-enapor-blue hidden">
+                </div>
+                
+                <!-- Botão Menu Mobile -->
+                <!-- ID 'mobile-menu-btn' adicionado para controlo via JS -->
+                <button id="mobile-menu-btn" class="md:hidden ml-4 text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><line x1="3" x2="21" y1="12" y2="12"></line><line x1="3" x2="21" y1="6" y2="6"></line><line x1="3" x2="21" y1="18" y2="18"></line></svg>
+                </button>
+
+                <!-- Perfil do Utilizador -->
+                <div class="items-center gap-3 hidden md:flex ml-6">
+                    <img class="w-10 h-10 rounded-full object-cover" src="https://placehold.co/100x100/003A70/FFFFFF?text=JS" alt="Avatar João Silva">
+                    <div class="text-sm">
+                        <p class="font-semibold text-gray-900">João Silva</p>
+                        <p class="text-gray-500">Operador</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Área de Conteúdo (com scroll) -->
+            <main class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+
+                <!-- Tabela de Navios -->
+                <div id="navios-section" class="space-y-6">
+                    <!-- KPIs da secção de Navios -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- ALTERAÇÃO: Cartão KPI com fundo sólido, sem ícone, texto maior -->
+                        <div class="bg-enapor-blue text-white p-6 rounded-2xl shadow-lg">
+                            <p class="text-sm text-blue-100">Navios em Porto</p>
+                            <p id="kpi-navios-porto" class="text-3xl font-bold text-white mt-1">0</p>
+                        </div>
+                        <!-- ALTERAÇÃO: Cartão KPI com fundo sólido, sem ícone, texto maior -->
+                        <div class="bg-enapor-orange text-white p-6 rounded-2xl shadow-lg">
+                            <p class="text-sm text-orange-100">Navios Previstos (24h)</p>
+                            <p id="kpi-navios-previstos" class="text-3xl font-bold text-white mt-1">0</p>
+                        </div>
+                        <!-- ALTERAÇÃO: Cartão KPI com fundo sólido, sem ícone, texto maior -->
+                        <div class="bg-enapor-green text-white p-6 rounded-2xl shadow-lg">
+                            <p class="text-sm text-green-100">Tempo Médio em porto</p>
+                            <p class="text-3xl font-bold text-white mt-1">18h 30m</p>
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Navios -->
+                    <div id="ship-table-container" class="bg-white rounded-2xl shadow-lg">
+                    <!-- Cabeçalho da Tabela -->
+                    <div class="px-6 py-5 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Navios</h2>
+                    </div>
+                    
+                    <!-- Wrapper da Tabela (para scroll horizontal) -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[700px] text-sm">
+                            <thead>
+                                <tr class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-4">Porto</th>
+                                    <th class="px-6 py-4">Navio</th>
+                                    <th class="px-6 py-4">Nº da Escala</th>
+                                    <th class="px-6 py-4">Número IMO</th>
+                                    <th class="px-6 py-4">Porto Anterior</th>
+                                    <th class="px-6 py-4">ATA</th>
+                                    <th class="px-6 py-4">Estado</th>
+                                    <th class="px-6 py-4 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <!-- ALTERAÇÃO: Removido 'divide-y' daqui -->
+                            <tbody id="ship-table-body" class="">
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ata="2024-07-20T10:00:00">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800">Porto Grande</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">MAR D´CANAL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002630</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">9123456</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">Roterdão <img src="https://flagcdn.com/w20/nl.png" alt="Bandeira Países Baixos" class="h-3"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">20/07/2024 10:00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-enapor-green bg-green-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-enapor-green rounded-full"></span>
+                                            Em Porto
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="font-medium text-enapor-blue hover:underline" data-ship-name="MAR D´CANAL">Ver Contentores</button>
+                                    </td>
+                                </tr>
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ata="2024-07-21T16:30:00">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800">Porto da Praia</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">B.LÉZA</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002633</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">9780852</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">Algeciras <img src="https://flagcdn.com/w20/es.png" alt="Bandeira Espanha" class="h-3"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">21/07/2024 16:30</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                                            Previsto
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="font-medium text-enapor-blue hover:underline" data-ship-name="B.LÉZA">Ver Contentores</button>
+                                    </td>
+                                </tr>
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ata="2024-07-22T09:00:00">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800">Porto Grande</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">CHIQUINHO BL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002640</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">9463067</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">Hamburgo <img src="https://flagcdn.com/w20/de.png" alt="Bandeira Alemanha" class="h-3"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">22/07/2024 09:00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-enapor-green bg-green-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-enapor-green rounded-full"></span>
+                                            Em Porto
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="font-medium text-enapor-blue hover:underline" data-ship-name="CHIQUINHO BL">Ver Contentores</button>
+                                    </td>
+                                </tr>
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ata="2024-07-23T11:00:00">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800">Porto da Praia</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">DONA TUTUTA</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002642</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">9893890</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">Leixões <img src="https://flagcdn.com/w20/pt.png" alt="Bandeira Portugal" class="h-3"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">23/07/2024 11:00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                                            Previsto
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="font-medium text-enapor-blue hover:underline" data-ship-name="DONA TUTUTA">Ver Contentores</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+                </div>
+                
+                <!-- Secção de Descarga -->
+                <div id="descarga-section" class="hidden space-y-6">
+                    <!-- Cartões KPI (Key Performance Indicators) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- ALTERAÇÃO: Cartão KPI com fundo sólido, sem ícone, texto maior -->
+                        <div class="bg-enapor-blue text-white p-6 rounded-2xl shadow-lg">
+                            <p class="text-sm text-blue-100">Navios em operação</p>
+                            <p class="text-3xl font-bold text-white mt-1">4</p>
+                        </div>
+                        <!-- ALTERAÇÃO: Cartão KPI com fundo sólido, sem ícone, texto maior -->
+                        <div class="bg-enapor-green text-white p-6 rounded-2xl shadow-lg">
+                            <p class="text-sm text-green-100">Contentores descarregados</p>
+                            <p class="text-3xl font-bold text-white mt-1">152</p>
+                        </div>
+                        <!-- ALTERAÇÃO: Cartão KPI com fundo sólido, sem ícone, texto maior -->
+                        <div class="bg-enapor-orange text-white p-6 rounded-2xl shadow-lg">
+                            <p class="text-sm text-orange-100">Tempo médio descarga</p>
+                            <p class="text-3xl font-bold text-white mt-1">26 min</p>
+                        </div>
+                    </div>
+
+                <!-- Tabela de Detalhes da Descarga -->
+                <div class="bg-white rounded-2xl shadow-lg">
+                    <!-- Cabeçalho da Tabela e Filtros -->
+                    <div class="px-6 py-5 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <h2 class="text-xl font-semibold text-gray-900">Descargas em curso</h2>
+                        <!-- Filtros e Botão de Registo Manual -->
+                        <div class="flex items-center gap-3">
+                            <!-- ALTERAÇÃO: Estilo dos botões de filtro (tabs) -->
+                            <div id="discharge-filters" class="flex items-center gap-2">
+                                <button data-filter="todos" class="px-4 py-1.5 text-sm rounded-lg font-semibold text-gray-900 bg-gray-200">Todos</button>
+                                <button data-filter="descarregado" class="px-4 py-1.5 text-sm rounded-lg font-medium text-gray-500 hover:bg-gray-100">Descarregados</button>
+                                <button data-filter="pendente" class="px-4 py-1.5 text-sm rounded-lg font-medium text-gray-500 hover:bg-gray-100">Pendentes</button>
+                            </div>
+                            <button id="open-manual-modal-btn" class="flex items-center gap-2 bg-enapor-orange text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-orange-600 transition-all">
+                                <!-- Ícone (Lucide: Plus) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+                                <span>Registar Descarga Manual</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Wrapper da Tabela (para scroll horizontal) -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[700px] text-sm">
+                            <thead>
+                                <tr class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-4">Navio</th>
+                                    <th class="px-6 py-4">Contentor</th>
+                                    <th class="px-6 py-4">Código ISO</th>
+                                    <th class="px-6 py-4">Data de descarga</th>
+                                    <th class="px-6 py-4">Estado</th>
+                                    <th class="px-6 py-4 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <!-- ALTERAÇÃO: Removido 'divide-y' daqui -->
+                            <tbody id="discharge-table-body" class="">
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ship-name="MAR D´CANAL" data-status="descarregado">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">MAR D´CANAL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">MSCU1234567</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">22G1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">17/07/2024 10:45:12</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-enapor-green bg-green-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-enapor-green rounded-full"></span>
+                                            Descarregado
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Desmarcar</button>
+                                    </td>
+                                </tr>
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ship-name="B.LÉZA" data-status="pendente">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">B.LÉZA</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">CMAU7654321</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">45G1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">--:--:--</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                                            Pendente
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="px-3 py-1 text-xs font-medium text-white bg-enapor-blue rounded-md hover:bg-opacity-90">Descarregar</button>
+                                    </td>
+                                </tr>
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ship-name="MAR D´CANAL" data-status="descarregado">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">MAR D´CANAL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">MSCU1234568</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">22G1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">17/07/2024 10:50:02</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-enapor-green bg-green-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-enapor-green rounded-full"></span>
+                                            Descarregado
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Desmarcar</button>
+                                    </td>
+                                </tr>
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ship-name="CHIQUINHO BL" data-status="pendente">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">CHIQUINHO BL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">MRSU8765432</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">42R1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">--:--:--</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                                            Pendente
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="px-3 py-1 text-xs font-medium text-white bg-enapor-blue rounded-md hover:bg-opacity-90">Descarregar</button>
+                                    </td>
+                                </tr>
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ship-name="CHIQUINHO BL" data-status="descarregado">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">CHIQUINHO BL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">MAEU5432109</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">22G1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">17/07/2024 11:15:45</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-enapor-green bg-green-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-enapor-green rounded-full"></span>
+                                            Descarregado
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Desmarcar</button>
+                                    </td>
+                                </tr>
+                                <!-- ALTERAÇÃO: Removido 'odd/even', adicionado 'border-b' -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ship-name="DONA TUTUTA" data-status="pendente">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">DONA TUTUTA</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">EASU4567890</td>
+                                    <td class="px-6 py-4 whitespace-noww-rap text-gray-600">45U1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">--:--:--</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                                            Pendente
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="px-3 py-1 text-xs font-medium text-white bg-enapor-blue rounded-md hover:bg-opacity-90">Descarregar</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal de Registo Manual -->
+    <div id="manual-register-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all opacity-0 scale-95">
+            <!-- Cabeçalho do Modal -->
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Registar Descarga Manual</h3>
+            </div>
+            
+            <!-- Corpo do Modal com Formulário -->
+            <form id="manual-register-form" class="p-6 space-y-4">
+                <div>
+                    <label for="manual-port-select" class="block text-sm font-medium text-gray-700 mb-1">Porto</label>
+                    <select id="manual-port-select" name="port" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-enapor-blue" required>
+                        <option value="">Selecione um porto...</option>
+                        <!-- Opções preenchidas por JS -->
+                    </select>
+                </div>
+                <div>
+                    <label for="manual-ship-select" class="block text-sm font-medium text-gray-700 mb-1">Navio</label>
+                    <select id="manual-ship-select" name="ship" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-enapor-blue" required>
+                        <option value="">Selecione um navio...</option>
+                        <!-- Opções preenchidas por JS -->
+                    </select>
+                </div>
+                <div>
+                    <label for="manual-container-input" class="block text-sm font-medium text-gray-700 mb-1">Número do Contentor</label>
+                    <input type="text" id="manual-container-input" name="container" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-enapor-blue" placeholder="Ex: MSCU1234567" required>
+                </div>
+                <!-- Mensagem de erro (substitui o alert) -->
+                <div id="manual-register-error" class="text-enapor-red text-sm hidden"></div>
+            </form>
+            
+            <!-- Rodapé do Modal com Ações -->
+            <div class="px-6 py-4 bg-gray-50 rounded-b-2xl flex justify-end gap-3">
+                <button id="cancel-manual-modal-btn" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button id="save-manual-modal-btn" type="submit" form="manual-register-form" class="px-4 py-2 text-sm font-medium text-white bg-enapor-blue rounded-lg hover:bg-opacity-90">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Seletores de Elementos ---
+            const navNavios = document.getElementById('nav-navios');
+            const navDescarga = document.getElementById('nav-descarga');
+            
+            const naviosSection = document.getElementById('navios-section');
+            const descargaSection = document.getElementById('descarga-section');
+            
+            const mainSearchInput = document.getElementById('main-search-input'); // Para contentores
+            const shipSearchInput = document.getElementById('ship-search-input'); // Para navios
+
+            const shipTableBody = document.getElementById('ship-table-body');
+            const dischargeTableBody = document.getElementById('discharge-table-body');
+            
+            // É mais seguro obter as linhas dinamicamente ou atualizar esta lista quando a tabela muda
+            let shipTableRows = Array.from(shipTableBody.querySelectorAll('tr'));
+            let descargaTableRows = Array.from(dischargeTableBody.querySelectorAll('tr'));
+            
+            const dischargeFilterButtons = document.querySelectorAll('#discharge-filters button');
+            // ALTERAÇÃO: 'verContentoresButtons' agora seleciona dentro do body, 
+            // mas é mais seguro usar delegação de eventos. Vamos manter assim por agora.
+            const verContentoresButtons = document.querySelectorAll('#ship-table-body button[data-ship-name]');
+            
+            // Elementos do Menu Mobile
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const sidebar = document.getElementById('sidebar');
+
+            // --- Variáveis de Estado ---
+            let currentStatusFilter = 'todos';
+            let currentShipFilter = null; // Armazena o filtro de navio ativo para a tabela de descargas
+
+            // --- Funções Principais ---
+
+            /**
+             * Mostra uma "view" (secção) principal e esconde as outras.
+             * @param {string} viewName - O nome da view ('navios' ou 'descarga').
+             * @param {string | null} [shipFilter=null] - (Opcional) O nome do navio para filtrar na view de descarga.
+             */
+            function showView(viewName, shipFilter = null) {
+                // Atualiza o estado global do filtro de navio
+                currentShipFilter = shipFilter;
+
+                // Esconder todas as secções
+                naviosSection.classList.add('hidden');
+                descargaSection.classList.add('hidden');
+                
+                // Controlar a visibilidade das barras de pesquisa
+                mainSearchInput.classList.add('hidden');
+                shipSearchInput.classList.add('hidden');
+
+                // Resetar estado ativo da navegação
+                // ALTERAÇÃO: Atualizado para o novo estilo da sidebar escura
+                [navNavios, navDescarga].forEach(nav => {
+                    nav.classList.remove('bg-white/10', 'text-white', 'font-semibold');
+                    nav.classList.add('text-gray-200', 'font-medium', 'hover:text-white');
+                });
+
+                if (viewName === 'navios') {
+                    naviosSection.classList.remove('hidden');
+                    shipSearchInput.classList.remove('hidden'); // Mostrar pesquisa de navios
+                    mainSearchInput.value = ''; // Limpa a pesquisa de contentores
+                    
+                    // ALTERAÇÃO: Atualizado para o novo estilo da sidebar escura
+                    navNavios.classList.add('bg-white/10', 'text-white', 'font-semibold');
+                    navNavios.classList.remove('text-gray-200', 'font-medium', 'hover:text-white');
+                    sortShipTable();
+                
+                } else if (viewName === 'descarga') {
+                    descargaSection.classList.remove('hidden');
+                    mainSearchInput.classList.remove('hidden'); // Mostrar pesquisa de contentores
+                    shipSearchInput.value = ''; // Limpa a pesquisa de navios
+                    
+                    // ALTERAÇÃO: Atualizado para o novo estilo da sidebar escura
+                    navDescarga.classList.add('bg-white/10', 'text-white', 'font-semibold');
+                    navDescarga.classList.remove('text-gray-200', 'font-medium', 'hover:text-white');
+                    
+                    const statusToActivate = shipFilter ? 'todos' : 'pendente';
+                    currentStatusFilter = statusToActivate;
+
+                    // Atualizar visualmente os botões de filtro
+                    // ALTERAÇÃO: Atualizado para o novo estilo de tabs (pills)
+                    dischargeFilterButtons.forEach(btn => {
+                        btn.classList.remove('font-semibold', 'text-gray-900', 'bg-gray-200');
+                        btn.classList.add('font-medium', 'text-gray-500', 'hover:bg-gray-100');
+                        
+                        if (btn.dataset.filter === statusToActivate) {
+                            btn.classList.add('font-semibold', 'text-gray-900', 'bg-gray-200');
+                            btn.classList.remove('font-medium', 'text-gray-500', 'hover:bg-gray-100');
+                        }
+                    });
+
+                    // Aplicar o filtro
+                    filterDischargeTable();
+                }
+                updateShipKPIs();
+            }
+
+            /**
+             * Calcula e atualiza os KPIs dos navios com base nas linhas da tabela.
+             */
+            function updateShipKPIs() {
+                let portoCount = 0;
+                let previstoCount = 0;
+
+                shipTableRows = Array.from(shipTableBody.querySelectorAll('tr')); 
+
+                shipTableRows.forEach(row => {
+                    const statusCell = row.cells[6]; 
+                    if (statusCell) {
+                        const statusText = statusCell.textContent || '';
+                        if (statusText.includes('Em Porto')) {
+                            portoCount++;
+                        } else if (statusText.includes('Previsto')) {
+                            previstoCount++;
+                        }
+                    }
+                });
+                document.getElementById('kpi-navios-porto').textContent = portoCount;
+                document.getElementById('kpi-navios-previstos').textContent = previstoCount;
+            }
+
+            /**
+             * Ordena a tabela de navios por data ATA (data-ata attribute).
+             */
+            function sortShipTable() {
+                const rows = Array.from(shipTableBody.querySelectorAll('tr'));
+
+                rows.sort((a, b) => {
+                    const dateA = new Date(a.dataset.ata);
+                    const dateB = new Date(b.dataset.ata);
+                    return dateA - dateB; // Ordenar do mais antigo para o mais recente (ascendente)
+                });
+
+                // Re-adiciona as linhas ordenadas ao corpo da tabela
+                rows.forEach(row => shipTableBody.appendChild(row));
+            }
+
+            /**
+             * Filtra a tabela de descargas com base nos estados globais
+             * (currentShipFilter, currentStatusFilter) e na pesquisa (mainSearchInput).
+             */
+            function filterDischargeTable() {
+                const searchTerm = mainSearchInput.value.toLowerCase();
+
+                descargaTableRows.forEach(row => {
+                    const shipMatch = !currentShipFilter || row.dataset.shipName === currentShipFilter;
+                    const statusMatch = currentStatusFilter === 'todos' || row.dataset.status === currentStatusFilter;
+                    
+                    const containerCell = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+                    const searchMatch = containerCell.includes(searchTerm);
+
+                    if (shipMatch && statusMatch && searchMatch) {
+                        row.style.display = ''; // Mostra a linha
+                    } else {
+                        row.style.display = 'none'; // Esconde a linha
+                    }
+                });
+            }
+
+            /**
+             * Filtra a tabela de navios com base na pesquisa (shipSearchInput).
+             */
+            function filterShipTable() {
+                const searchTerm = shipSearchInput.value.toLowerCase();
+                shipTableRows.forEach(row => {
+                    const shipName = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+                    const shipIMO = row.cells[3] ? row.cells[3].textContent.toLowerCase() : '';
+                    
+                    if (shipName.includes(searchTerm) || shipIMO.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            // --- Event Listeners ---
+
+            // Pesquisa de Contentores (keyup)
+            if (mainSearchInput) {
+                mainSearchInput.addEventListener('keyup', filterDischargeTable);
+            }
+
+            // Pesquisa de Navios (keyup)
+            if (shipSearchInput) {
+                shipSearchInput.addEventListener('keyup', filterShipTable);
+            }
+
+            // Filtros de Estado (click)
+            if (dischargeFilterButtons) {
+                dischargeFilterButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        currentStatusFilter = e.target.dataset.filter;
+                        // Atualiza estilos
+                        // ALTERAÇÃO: Atualizado para o novo estilo de tabs (pills)
+                        dischargeFilterButtons.forEach(btn => {
+                            btn.classList.remove('font-semibold', 'text-gray-900', 'bg-gray-200');
+                            btn.classList.add('font-medium', 'text-gray-500', 'hover:bg-gray-100');
+                        });
+                        e.target.classList.add('font-semibold', 'text-gray-900', 'bg-gray-200');
+                        e.target.classList.remove('font-medium', 'text-gray-500', 'hover:bg-gray-100');
+                        // Re-filtra
+                        filterDischargeTable();
+                    });
+                });
+            }
+
+            // Navegação (Sidebar)
+            navNavios.addEventListener('click', (e) => {
+                e.preventDefault();
+                showView('navios');
+            });
+
+            navDescarga.addEventListener('click', (e) => {
+                e.preventDefault();
+                showView('descarga'); // Mostra todos os contentores, filtrados por 'pendente' (definido em showView)
+            });
+
+            // Botões "Ver Contentores" (na tabela de navios)
+            // NOTA: Isto pode falhar se as linhas da tabela de navios forem recarregadas dinamicamente.
+            // A delegação de eventos no 'shipTableBody' seria mais robusta.
+            verContentoresButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const shipName = e.target.dataset.shipName;
+                    showView('descarga', shipName); // Mostra a descarga, filtrada por este navio
+                });
+            });
+
+            // Ações na Tabela de Descarga (Descarregar/Desmarcar) - Event Delegation
+            dischargeTableBody.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button) return; // Sai se não foi um botão
+
+                const row = button.closest('tr');
+                if (!row) return; // Sai se não encontrou a linha
+
+                if (button.textContent === 'Descarregar') {
+                    // --- Ação Descarregar ---
+                    const timeCell = row.cells[3];
+                    const now = new Date();
+                    timeCell.textContent = now.toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'medium' });
+
+                    const statusCell = row.cells[4];
+                    statusCell.innerHTML = `
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-enapor-green bg-green-100 rounded-full">
+                            <span class="w-1.5 h-1.5 bg-enapor-green rounded-full"></span>
+                            Descarregado
+                        </span>`;
+                    row.dataset.status = 'descarregado';
+
+                    button.parentElement.innerHTML = `<button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Desmarcar</button>`;
+                
+                } else if (button.textContent === 'Desmarcar') {
+                    // --- Ação Desmarcar ---
+                    row.cells[3].textContent = '--:--:--'; // Limpar data
+                    row.cells[4].innerHTML = `
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            Pendente
+                        </span>`;
+                    row.dataset.status = 'pendente';
+                    button.parentElement.innerHTML = `<button class="px-3 py-1 text-xs font-medium text-white bg-enapor-blue rounded-md hover:bg-opacity-90">Descarregar</button>`;
+                }
+
+                // Esconde a linha se já não corresponder ao filtro de estado atual
+                filterDischargeTable();
+            });
+
+            // Menu Mobile
+            if (mobileMenuBtn && sidebar) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('hidden');
+                });
+            }
+
+            // --- Lógica do Modal de Registo Manual ---
+            const manualModal = document.getElementById('manual-register-modal');
+            const manualModalContent = manualModal.querySelector('.bg-white');
+            const openModalBtn = document.getElementById('open-manual-modal-btn');
+            const cancelModalBtn = document.getElementById('cancel-manual-modal-btn');
+            const manualForm = document.getElementById('manual-register-form');
+            const portSelect = document.getElementById('manual-port-select');
+            const shipSelect = document.getElementById('manual-ship-select');
+            const errorDiv = document.getElementById('manual-register-error');
+
+            function openManualModal() {
+                // Preencher a lista de portos dinamicamente
+                portSelect.innerHTML = '<option value="">Selecione um porto...</option>';
+                const ports = [...new Set(shipTableRows.map(row => row.cells[0].textContent.trim()))];
+                ports.sort().forEach(port => {
+                    const option = document.createElement('option');
+                    option.value = port;
+                    option.textContent = port;
+                    portSelect.appendChild(option);
+                });
+
+                // Limpar a lista de navios e desativar
+                shipSelect.innerHTML = '<option value="">Selecione um porto primeiro...</option>';
+                shipSelect.disabled = true;
+                errorDiv.classList.add('hidden'); // Limpar erros
+                manualForm.reset();
+
+                // Adicionar listener para o select de portos
+                portSelect.onchange = () => {
+                    const selectedPort = portSelect.value;
+                    shipSelect.innerHTML = '<option value="">Selecione um navio...</option>';
+                    shipSelect.disabled = !selectedPort;
+
+                    if (selectedPort) {
+                        const shipsInPort = shipTableRows
+                            .filter(row => row.cells[0].textContent.trim() === selectedPort && row.cells[6].textContent.includes('Em Porto'))
+                            .map(row => row.cells[1].textContent.trim())
+                            .sort();
+                        
+                        shipsInPort.forEach(shipName => {
+                            const option = document.createElement('option');
+                            option.value = shipName;
+                            option.textContent = shipName;
+                            shipSelect.appendChild(option);
+                        });
+                    }
+                };
+
+                // Mostrar modal com animação
+                manualModal.classList.remove('hidden');
+                setTimeout(() => {
+                    manualModalContent.classList.remove('opacity-0', 'scale-95');
+                    manualModalContent.classList.add('opacity-100', 'scale-100');
+                }, 10);
+            }
+
+            function closeManualModal() {
+                manualModalContent.classList.remove('opacity-100', 'scale-100');
+                manualModalContent.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    manualModal.classList.add('hidden');
+                }, 300); // Duração da animação
+            }
+
+            openModalBtn.addEventListener('click', openManualModal);
+            cancelModalBtn.addEventListener('click', closeManualModal);
+            manualModal.addEventListener('click', (e) => {
+                if (e.target === manualModal) { // Fechar se clicar no fundo
+                    closeManualModal();
+                }
+            });
+
+            // Submissão do Formulário Manual
+            manualForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const shipName = manualForm.elements.ship.value;
+                const containerId = manualForm.elements.container.value;
+
+                // Validação (Substitui o alert)
+                if (!shipName || !containerId) {
+                    errorDiv.textContent = 'Por favor, selecione um navio e insira o número do contentor.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+                errorDiv.classList.add('hidden');
+
+                // Criar e adicionar a nova linha à tabela de descargas
+                const newRow = document.createElement('tr');
+                // ALTERAÇÃO: Aplicado o novo estilo de linha da tabela
+                newRow.className = 'border-b border-gray-100 hover:bg-gray-50 last:border-b-0';
+                newRow.dataset.shipName = shipName;
+                newRow.dataset.status = 'descarregado';
+
+                const now = new Date();
+                
+                newRow.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${shipName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">${containerId.toUpperCase()}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">22G1</td> <!-- Código ISO hardcoded -->
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">${now.toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'medium' })}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium text-enapor-green bg-green-100 rounded-full">
+                            <span class="w-1.5 h-1.5 bg-enapor-green rounded-full"></span>
+                            Descarregado
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Desmarcar</button>
+                    </td>
+                `;
+
+                dischargeTableBody.prepend(newRow); // Adiciona no topo
+
+                // Adicionar a nova linha à coleção para que os filtros funcionem
+                descargaTableRows.unshift(newRow);
+
+                closeManualModal();
+            });
+
+            // --- Estado Inicial ---
+            // Mostrar a vista de navios ao carregar
+            showView('navios');
+        });
+    </script>
+</body>
+</html>
+
