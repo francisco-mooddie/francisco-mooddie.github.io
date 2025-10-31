@@ -75,12 +75,90 @@
             background-color: #FEEDD6; /* Tom de laranja/amarelo um pouco mais escuro no hover */
         }
 
+        /* NOVO: Estilos para o círculo de progresso */
+        #login-progress-circle {
+            /* Perímetro (Raio 46): 2 * PI * 46 = ~289 */
+            stroke-dasharray: 289;
+            stroke-dashoffset: 289;
+            transition: stroke-dashoffset 1.5s ease-in-out;
+        }
+
+        #login-circle-spinner.is-loading #login-progress-circle {
+            stroke-dashoffset: 0;
+        }
+
     </style>
 </head>
 
 <body class="bg-enapor-gray text-gray-800">
 
-    <div class="flex h-screen">
+    <!-- NOVO: Ecrã de Login Modernizado -->
+    <div id="login-screen" class="flex items-center justify-center min-h-screen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1577561824128-53c3c78f1082?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzNzEyNjZ8MHwxfGFsbHx8fHx8fHx8fDE3Mjk5NzEwNjl8&ixlib=rb-4.0.3&q=80&w=1920');">
+        <!-- Overlay escuro -->
+        <div class="absolute inset-0 bg-enapor-blue/80 backdrop-blur-sm"></div>
+        
+        <div class="w-full max-w-sm p-8 bg-white rounded-2xl shadow-xl space-y-6 z-10">
+            
+            <!-- Contenedor do Ícone e Spinner -->
+            <div class="relative w-24 h-24 mx-auto">
+                <!-- O Ícone (SVG) - Fica sempre visível -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <!-- Ícone para 'Descarga Digital': Um contentor com uma seta para baixo -->
+                    <svg class="w-12 h-12 text-enapor-blue" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <path d="M12 15v-6m-3 3 3 3 3-3"/> <!-- Seta para baixo -->
+                    </svg>
+                </div>
+                
+                <!-- ALTERAÇÃO: Spinner antigo removido e substituído por este SVG -->
+                <!-- Círculo de Animação SVG -->
+                <svg id="login-circle-spinner" class="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Círculo de fundo (o trilho) -->
+                    <circle class="text-enapor-blue/20" stroke-width="4" stroke="currentColor" fill="transparent" r="46" cx="50" cy="50"/>
+                    
+                    <!-- Círculo de progresso (a linha que preenche) -->
+                    <circle id="login-progress-circle" 
+                            class="text-enapor-blue" 
+                            stroke-width="4" 
+                            stroke-linecap="round" 
+                            stroke="currentColor" 
+                            fill="transparent" 
+                            r="46" 
+                            cx="50" 
+                            cy="50"
+                            transform="rotate(-90 50 50)"/> <!-- Roda -90 graus para começar do topo -->
+                </svg>
+            </div>
+            
+            <!-- TÍTULO ADICIONADO -->
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-enapor-blue">Descarga Digital</h1>
+            </div>
+            
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="login-user" class="block text-sm font-medium text-gray-700">Utilizador</label>
+                    <input type="text" id="login-user" name="user" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-enapor-blue" required>
+                </div>
+                <div>
+                    <label for="login-pass" class="block text-sm font-medium text-gray-700">Palavra-passe</label>
+                    <input type="password" id="login-pass" name="pass" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-enapor-blue" required>
+                </div>
+                
+                <!-- Mensagem de Erro de Login -->
+                <div id="login-error" class="text-enapor-red text-sm text-center hidden pt-2">
+                    Utilizador ou palavra-passe incorretos.
+                </div>
+                
+                <button type="submit" class="w-full px-4 py-3 text-sm font-semibold text-white bg-enapor-blue rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-enapor-blue focus:ring-offset-2 transition-all">
+                    Entrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ALTERAÇÃO: Aplicação principal agora tem um ID e está oculta (hidden) -->
+    <div id="dashboard-app" class="flex h-screen hidden">
         <!-- Barra Lateral (Sidebar) -->
         <aside id="sidebar" class="w-64 bg-enapor-blue text-white p-6 shadow-lg hidden md:flex flex-col flex-shrink-0 absolute md:relative z-20 h-full">
             <!-- Logo -->
@@ -100,21 +178,12 @@
                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" x2="12" y1="22" y2="12"></line></svg>
                     <span>Descarga</span>
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-white font-medium rounded-lg">
-                    <!-- Ícone 📊 (Lucide: BarChart) -->
-                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg>
-                    <span>Analytics</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-white font-medium rounded-lg">
-                    <!-- Ícone ⚙️ (Lucide: Settings) -->
-                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 .25 1l-.08.15a2 2 0 0 1 0 2l.08.15a2 2 0 0 1-.25 1l-.15.1a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-.25-1l.08-.15a2 2 0 0 1 0-2l-.08-.15a2 2 0 0 1 .25-1l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    <span>Definições</span>
-                </a>
             </nav>
             
             <!-- Logout -->
             <div class="mt-auto">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-white font-medium rounded-lg">
+                <!-- ALTERAÇÃO: Adicionado ID ao botão de logout -->
+                <a href="#" id="logout-btn" class="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-white font-medium rounded-lg">
                     <!-- Ícone 🔒 (Lucide: LogOut) -->
                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
                     <span>Terminar sessão</span>
@@ -201,7 +270,7 @@
                                 <!-- ALTERAÇÃO: Colunas removidas, reordenadas e data-attributes adicionados ao botão -->
                                 <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ata="2024-07-20T10:00:00">
                                     <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">MAR D´CANAL</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">Roterdão <img src="https://flagcdn.com/w20/nl.png" alt="Bandeira Países Baixos" class="h-3"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">NLRTM, NL <img src="https://flagcdn.com/w20/nl.png" alt="Bandeira Países Baixos" class="h-3"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002630</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">20/07/2024 10:00</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
@@ -210,7 +279,7 @@
                                 </tr>
                                 <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ata="2024-07-21T16:30:00">
                                     <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">B.LÉZA</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">Algeciras <img src="https://flagcdn.com/w20/es.png" alt="Bandeira Espanha" class="h-3"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">ESALG, ES <img src="https://flagcdn.com/w20/es.png" alt="Bandeira Espanha" class="h-3"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002633</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">21/07/2024 16:30</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
@@ -219,7 +288,7 @@
                                 </tr>
                                 <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ata="2024-07-22T09:00:00">
                                     <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">CHIQUINHO BL</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">Hamburgo <img src="https://flagcdn.com/w20/de.png" alt="Bandeira Alemanha" class="h-3"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">DEHAM, DE <img src="https://flagcdn.com/w20/de.png" alt="Bandeira Alemanha" class="h-3"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002640</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">22/07/2024 09:00</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
@@ -228,7 +297,7 @@
                                 </tr>
                                 <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0" data-ata="2024-07-23T11:00:00">
                                     <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">DONA TUTUTA</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">Leixões <img src="https://flagcdn.com/w20/pt.png" alt="Bandeira Portugal" class="h-3"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 flex items-center gap-2">PTLXS, PT <img src="https://flagcdn.com/w20/pt.png" alt="Bandeira Portugal" class="h-3"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002642</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">23/07/2024 11:00</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
@@ -299,6 +368,8 @@
                             <thead>
                                 <!-- ALTERAÇÃO: Colunas removidas e renomeadas -->
                                 <tr class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-4">Navio</th>
+                                    <th class="px-6 py-4">Nº da Escala</th>
                                     <th class="px-6 py-4">Contentor</th>
                                     <th class="px-6 py-4">Tipo</th>
                                     <th class="px-6 py-4">Data de descarga</th>
@@ -307,7 +378,9 @@
                             </thead>
                             <tbody id="discharge-table-body" class="">
                                 <!-- ALTERAÇÃO: Colunas removidas, dados de 'Tipo' alterados, classe 'linha-descarregada' adicionada -->
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-descarregada" data-ship-name="MAR D´CANAL" data-status="descarregado">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-descarregada" data-ship-name="MAR D´CANAL" data-escala="GRA2025002630" data-status="descarregado">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">MAR D´CANAL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002630</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">MSCU1234567</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">20P</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">17/07/2024 10:45:12</td>
@@ -316,7 +389,9 @@
                                     </td>
                                 </tr>
                                 <!-- ALTERAÇÃO: Colunas removidas, dados de 'Tipo' alterados -->
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-pendente" data-ship-name="B.LÉZA" data-status="pendente">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-pendente" data-ship-name="B.LÉZA" data-escala="GRA2025002633" data-status="pendente">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">B.LÉZA</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002633</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">CMAU7654321</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">40P</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">--:--:--</td>
@@ -324,7 +399,9 @@
                                         <button class="px-3 py-1 text-xs font-medium text-white bg-enapor-blue rounded-md hover:bg-opacity-90">Descarregar</button>
                                     </td>
                                 </tr>
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-descarregada" data-ship-name="MAR D´CANAL" data-status="descarregado">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-descarregada" data-ship-name="MAR D´CANAL" data-escala="GRA2025002630" data-status="descarregado">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">MAR D´CANAL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002630</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">MSCU1234568</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">20P</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">17/07/2024 10:50:02</td>
@@ -332,7 +409,9 @@
                                         <button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Desmarcar</button>
                                     </td>
                                 </tr>
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-pendente" data-ship-name="CHIQUINHO BL" data-status="pendente">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-pendente" data-ship-name="CHIQUINHO BL" data-escala="GRA2025002640" data-status="pendente">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">CHIQUINHO BL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002640</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">MRSU8765432</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">40P</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">--:--:--</td>
@@ -340,7 +419,9 @@
                                         <button class="px-3 py-1 text-xs font-medium text-white bg-enapor-blue rounded-md hover:bg-opacity-90">Descarregar</button>
                                     </td>
                                 </tr>
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-descarregada" data-ship-name="CHIQUINHO BL" data-status="descarregado">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-descarregada" data-ship-name="CHIQUINHO BL" data-escala="GRA2025002640" data-status="descarregado">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">CHIQUINHO BL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002640</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">MAEU5432109</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">20P</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">17/07/2024 11:15:45</td>
@@ -348,7 +429,9 @@
                                         <button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Desmarcar</button>
                                     </td>
                                 </tr>
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-pendente" data-ship-name="DONA TUTUTA" data-status="pendente">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-pendente" data-ship-name="DONA TUTUTA" data-escala="GRA2025002642" data-status="pendente">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">DONA TUTUTA</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">GRA2025002642</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">EASU4567890</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">40P</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">--:--:--</td>
@@ -413,7 +496,65 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Seletores de Elementos ---
+            // --- NOVOS Seletores de Login ---
+            const loginScreen = document.getElementById('login-screen');
+            const loginForm = document.getElementById('login-form');
+            const loginError = document.getElementById('login-error');
+            const loginPassInput = document.getElementById('login-pass');
+            // --- ALTERAÇÃO: Seletor para o novo spinner de círculo ---
+            const loginCircleSpinner = document.getElementById('login-circle-spinner');
+            const loginButton = document.querySelector('#login-form button[type="submit"]'); // Seleciona o botão
+            
+            const dashboardApp = document.getElementById('dashboard-app');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            // --- Lógica de Login ---
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const user = e.target.elements.user.value;
+                    const pass = e.target.elements.pass.value;
+
+                    // 1. Mostrar spinner e desativar botão
+                    loginError.classList.add('hidden');
+                    // ALTERAÇÃO: Adiciona a classe 'is-loading' ao SVG
+                    loginCircleSpinner.classList.add('is-loading');
+                    loginButton.disabled = true;
+                    loginButton.classList.add('opacity-50');
+
+                    // 2. Simular chamada de API (1.5 segundos)
+                    setTimeout(() => {
+                        // 3. Esconder spinner e reativar botão
+                        // ALTERAÇÃO: Remove a classe 'is-loading'
+                        loginCircleSpinner.classList.remove('is-loading');
+                        loginButton.disabled = false;
+                        loginButton.classList.remove('opacity-50');
+
+                        // 4. Verificar credenciais (admin/admin)
+                        if (user === 'admin' && pass === 'admin') {
+                            loginScreen.classList.add('hidden');
+                            dashboardApp.classList.remove('hidden');
+                            loginPassInput.value = ''; // Limpa a passe
+                            showView('navios'); // NOVO: Mostrar a view 'navios' ao fazer login
+                        } else {
+                            loginError.textContent = 'Utilizador ou palavra-passe incorretos.';
+                            loginError.classList.remove('hidden');
+                        }
+                    }, 1500); // 1.5s de delay
+                });
+            }
+
+            // --- Lógica de Logout ---
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    dashboardApp.classList.add('hidden');
+                    loginScreen.classList.remove('hidden');
+                    loginPassInput.value = ''; // Limpa a passe
+                });
+            }
+
+            // --- Seletores de Elementos (EXISTENTES) ---
             const navNavios = document.getElementById('nav-navios');
             const navDescarga = document.getElementById('nav-descarga');
             
@@ -583,8 +724,8 @@
                     const shipMatch = !currentShipFilter || row.dataset.shipName === currentShipFilter;
                     const statusMatch = currentStatusFilter === 'todos' || row.dataset.status === currentStatusFilter;
                     
-                    // ALTERAÇÃO: Índice da célula mudou para 0 (Contentor)
-                    const containerCell = row.cells[0] ? row.cells[0].textContent.toLowerCase() : '';
+                    // ALTERAÇÃO: Índice da célula mudou para 2 (Contentor)
+                    const containerCell = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
                     const searchMatch = containerCell.includes(searchTerm);
 
                     if (shipMatch && statusMatch && searchMatch) {
@@ -674,8 +815,8 @@
 
                 if (button.textContent === 'Descarregar') {
                     // --- Ação Descarregar ---
-                    // ALTERAÇÃO: Índice da célula de tempo mudou para 2
-                    const timeCell = row.cells[2];
+                    // ALTERAÇÃO: Índice da célula de tempo mudou para 4
+                    const timeCell = row.cells[4];
                     const now = new Date();
                     timeCell.textContent = now.toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'medium' });
 
@@ -688,8 +829,8 @@
                 
                 } else if (button.textContent === 'Desmarcar') {
                     // --- Ação Desmarcar ---
-                    // ALTERAÇÃO: Índice da célula de tempo mudou para 2
-                    row.cells[2].textContent = '--:--:--'; // Limpar data
+                    // ALTERAÇÃO: Índice da célula de tempo mudou para 4
+                    row.cells[4].textContent = '--:--:--'; // Limpar data
                     
                     // ALTERAÇÃO: Remove classe de cor e muda estado
                     row.classList.remove('linha-descarregada');
@@ -727,11 +868,13 @@
                 shipSelect.innerHTML = '<option value="">Selecione um navio...</option>';
                 
                 shipTableRows.forEach(row => {
-                    // ALTERAÇÃO: Índice 0 é 'Navio'
+                    // ALTERAÇÃO: Índice 0 é 'Navio', 2 é 'Escala'
                     const shipName = row.cells[0].textContent.trim();
+                    const escala = row.cells[2].textContent.trim(); // Obter escala
                     const option = document.createElement('option');
                     option.value = shipName;
                     option.textContent = shipName;
+                    option.dataset.escala = escala; // Guardar a escala no data-attribute
                     shipSelect.appendChild(option);
                 });
                 
@@ -763,54 +906,13 @@
                 }
             });
 
-            // Submissão do Formulário Manual
-            manualForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const shipName = manualForm.elements.ship.value;
-                const containerId = manualForm.elements.container.value;
-                const containerType = manualForm.elements.type.value;
-
-                if (!shipName || !containerId) {
-                    errorDiv.textContent = 'Por favor, selecione um navio e insira o número do contentor.';
-                    errorDiv.classList.remove('hidden');
-                    return;
-                }
-                errorDiv.classList.add('hidden');
-
-                const newRow = document.createElement('tr');
-                // ALTERAÇÃO: Linha nova já vem descarregada e a verde
-                newRow.className = 'border-b border-gray-100 hover:bg-gray-50 last:border-b-0 linha-descarregada';
-                newRow.dataset.shipName = shipName;
-                newRow.dataset.status = 'descarregado';
-
-                const now = new Date();
-                
-                // ALTERAÇÃO: Estrutura do HTML da linha atualizada (4 colunas)
-                newRow.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">${containerId.toUpperCase()}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">${containerType}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">${now.toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'medium' })}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Desmarcar</button>
-                    </td>
-                `;
-
-                dischargeTableBody.prepend(newRow); // Adiciona no topo
-                descargaTableRows.unshift(newRow); // Adiciona ao array para filtros
-
-                // Se o navio registado for o navio que estamos a ver, atualiza os KPIs
-                if (currentShipFilter === shipName) {
-                    updateDischargeKPIs();
-                }
-
-                closeManualModal();
-            });
-
             // --- Estado Inicial ---
-            showView('navios');
+            // ALTERAÇÃO: A app não mostra 'navios' por defeito, espera pelo login.
+            // showView('navios');
         });
     </script>
 </body>
 </html>
+
 
 
